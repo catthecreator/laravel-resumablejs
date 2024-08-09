@@ -1,5 +1,5 @@
 {
-  "name": "le0daniel/laravel-resumablejs",
+  "name": "catthecreator/laravel-resumablejs",
   "description": "Very flexible integration of chunk and async uploading",
   "license": "MIT",
   "authors": [
@@ -26,8 +26,8 @@
     }
   },
   "require": {
-    "php": "^7.4|^8.0",
-    "laravel/framework": "^7"
+    "php": ">=7.4",
+    "laravel/framework": ">=7"
   },
   "require-dev": {
     "phpunit/phpunit": "^9.2",
