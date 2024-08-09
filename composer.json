@@ -12,18 +12,18 @@
   ],
   "autoload": {
     "psr-4": {
-      "catthecreator\\LaravelResumableJs\\": "src/"
+      "le0daniel\\LaravelResumableJs\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "catthecreator\\Tests\\LaravelResumableJs\\": "tests/"
+      "le0daniel\\Tests\\LaravelResumableJs\\": "tests/"
     }
   },
   "extra": {
     "laravel": {
       "providers": [
-        "catthecreator\\LaravelResumableJs\\Providers\\ResumableJsProvider"
+        "le0daniel\\LaravelResumableJs\\Providers\\ResumableJsProvider"
       ]
     }
   },
