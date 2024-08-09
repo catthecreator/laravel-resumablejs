@@ -3,7 +3,7 @@
   "description": "Very flexible integration of chunk and async uploading",
   "type": "library",
   "license": "MIT",
-  "version": "0.0.1",
+  "version": "1.0.1",
   "authors": [
     {
       "name": "Leo Daniel Studer",
