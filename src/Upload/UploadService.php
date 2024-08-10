@@ -114,9 +114,6 @@ final class UploadService
 
     private function createFileUpload(array $attributes, ?array $payloadRules): FileUpload
     {
-        if (!isset($attributes["payload"])) {
-            $attributes["payload"] = [];
-        }
         return new FileUpload(
             [
                 'name' => basename($attributes['name']),
@@ -124,7 +121,7 @@ final class UploadService
                 'type' => $attributes['type'],
                 'extension' => Files::getExtension($attributes['name']),
                 'chunks' => $this->getChunkNumber($attributes['size']),
-                'payload' => $this->validatedArray($attributes['payload'] ?? null, $payloadRules),
+                'payload' => $this->validatedArray($attributes['payload'] ?? [], $payloadRules),
             ]
         );
     }
