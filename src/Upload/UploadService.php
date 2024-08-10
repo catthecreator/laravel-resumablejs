@@ -114,6 +114,9 @@ final class UploadService
 
     private function createFileUpload(array $attributes, ?array $payloadRules): FileUpload
     {
+        if (!isset($attributes["payload"])) {
+            $attributes["payload"] = [];
+        }
         return new FileUpload(
             [
                 'name' => basename($attributes['name']),
