@@ -9,6 +9,7 @@ prefix('r-upload')
         static function () {
             Route::post('init', [UploadController::class, 'init'])->name('resumablejs.init');
             Route::post('', [UploadController::class, 'upload']);
+            Route::get('', [UploadController::class, 'checkUploaded']);
             Route::post('complete', [UploadController::class, 'complete']);
         }
     );
