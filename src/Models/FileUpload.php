@@ -8,6 +8,7 @@
 
 namespace le0daniel\LaravelResumableJs\Models;
 
+use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 
@@ -27,18 +28,33 @@ use Illuminate\Support\Arr;
  */
 class FileUpload extends Model
 {
-    protected $table = 'fileuploads';
-    protected $fillable = ['size', 'chunks', 'name', 'extension', 'type', 'payload'];
-    protected $casts = [
-        'payload' => 'array',
-        'is_complete' => 'boolean',
-    ];
+  use MassPrunable;
 
-    public function appendToPayload(string $key, $value): void
-    {
-        $payload = $this->payload;
-        Arr::set($payload, $key, $value);
-        $this->payload = $payload;
-    }
+  protected $table = 'fileuploads';
+  protected $fillable = ['size', 'chunks', 'name', 'extension', 'type', 'payload', 'client_unique_identifier'];
+  protected $casts = [
+    'payload' => 'array',
+    'is_complete' => 'boolean',
+  ];
+
+  public function appendToPayload(string $key, $value): void
+  {
+    $payload = $this->payload;
+    Arr::set($payload, $key, $value);
+    $this->payload = $payload;
+  }
+
+  public function prunable()
+  {
+    return static::where('created_at', '<=', now()->subDays(7));
+  }
+
+
+  public static function getByClientUniqueIdentifier($uniqueIdentifier): ?self
+  {
+    return self::where("client_unique_identifier", $uniqueIdentifier)->first();
+  }
+
+
 
 }
