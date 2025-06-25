@@ -41,7 +41,7 @@ final class UploadService
         }
     }
 
-    private function getChunks(FileUpload $fileUpload): array
+    public function getChunks(FileUpload $fileUpload): array
     {
         $chunks = [];
         $currentChunk = 1;
@@ -58,7 +58,7 @@ final class UploadService
         return
             config('resumablejs.async', false)
             && (
-                $handler->supportsAsyncProcessing() || $fileUpload->size > (100 * 1024 * 1024)
+                $handler->supportsAsyncProcessing() || $fileUpload->size > (50 * 1024 * 1024)
             );
     }
 
@@ -75,23 +75,33 @@ final class UploadService
 
     private function process(UploadHandler $handler, FileUpload $fileUpload): array
     {
-        $uploadedFile = new SplFileInfo($this->combineChunks($fileUpload));
+      $combinedChunks = $this->combineChunks($fileUpload);
+
+
+        $uploadedFile = new SplFileInfo($combinedChunks);
 
         try {
             $handler->validateUploadedFile($uploadedFile, $fileUpload);
             $response = $handler->handle($uploadedFile, $fileUpload);
         } catch (\Exception $exception) {
             Files::deleteExisting($uploadedFile);
+            $fileUpload->delete();
             throw $exception;
         }
 
         Files::deleteExisting($uploadedFile);
+        $fileUpload->delete();
         return $response ?? [];
     }
 
     private function dispatchAsync(FileUpload $fileUpload): array
     {
         $broadcastingKey = sprintf('upload-%s-%d', Tokens::generateRandom(16), $fileUpload->id);
+
+        /** @var UploadHandler $handler */
+        $handler = app()->make($fileUpload->handler);
+        $handler->dispatchAsync($fileUpload, $broadcastingKey);
+
         dispatch(new AsyncProcessingJob($fileUpload, $broadcastingKey))
             ->onQueue(config('resumablejs.queue'));
         return [
@@ -114,8 +124,10 @@ final class UploadService
 
     private function createFileUpload(array $attributes, ?array $payloadRules): FileUpload
     {
+
         return new FileUpload(
             [
+                'client_unique_identifier' => $attributes['uniqueIdentifier'],
                 'name' => basename($attributes['name']),
                 'size' => (int)$attributes['size'],
                 'type' => $attributes['type'],
@@ -128,6 +140,14 @@ final class UploadService
 
     public function init(UploadHandler $handler, InitRequest $request): FileUpload
     {
+        $uniqueIdentifier = $args = $request->input("uniqueIdentifier");
+
+        $fu = FileUpload::getByClientUniqueIdentifier($uniqueIdentifier);
+
+        if ($fu) {
+          return $fu;
+        }
+
         $fileUpload = $this->createFileUpload($request->validated(), $handler->payloadRules());
 
         // Perform additional steps after the validation is complete.
