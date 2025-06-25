@@ -23,6 +23,7 @@ use le0daniel\LaravelResumableJs\Models\FileUpload;
 use le0daniel\LaravelResumableJs\Upload\InvalidChunksException;
 use le0daniel\LaravelResumableJs\Upload\UploadProcessingException;
 use le0daniel\LaravelResumableJs\Upload\UploadService;
+use le0daniel\LaravelResumableJs\Utility\Files;
 
 final class UploadController extends BaseController
 {
@@ -49,7 +50,7 @@ final class UploadController extends BaseController
 
     private function isInitCall(Request $request): bool
     {
-        return $request->route()->getName() === self::INIT_REQUEST_NAME;
+        return $request?->route()?->getName() === self::INIT_REQUEST_NAME;
     }
 
     private function applyHandlerMiddleware(): void
@@ -87,6 +88,32 @@ final class UploadController extends BaseController
         }
     }
 
+    public function checkUploaded(Request $request, UploadService $manager)
+    {
+      try {
+        $token = $request->token;
+        $chunk_number = $request->resumableChunkNumber;
+        $file_upload = $this->getUncompletedFileUpload($request->token);
+
+
+//        dump($request->all());
+//        $chunk = Files::computeChunkFileName($token, $chunk_number);
+        $r = Files::chunkExists(
+          $token,
+          $chunk_number
+        );
+
+        if ($r) {
+          return response()->json("ok");
+        }
+
+      } catch (\Throwable $e) {
+      }
+
+
+      abort(404);
+    }
+
     public function upload(UploadRequest $request, UploadService $manager)
     {
         $attributes = $request->validated();
@@ -114,5 +141,8 @@ final class UploadController extends BaseController
             return ApiResponse::error($exception->getUserMessage() ?? 'Internal Error', 422);
         }
     }
+
+
+
 
 }
