@@ -95,4 +95,8 @@ abstract class UploadHandler
     public function broadcastProcessedAsync(FileUpload $fileUpload, string $broadcastKey, ?array $processedData): void
     {
     }
+    public function dispatchAsync(FileUpload $fileUpload, string $broadcastKey): void
+    {
+
+    }
 }
