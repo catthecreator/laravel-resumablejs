@@ -16,6 +16,7 @@ class CreateFileuploadTable extends Migration
         Schema::create('fileuploads', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('token',64)->unique();
+            $table->string('client_unique_identifier',255)->unique();
             $table->string('handler');
             $table->string('name');
             $table->string('type');
